@@ -56,26 +56,20 @@ The agent will greet you and ask how it can help. Type your questions or prefere
 
 ## Data
 
-The agent expects a `programm.json` file describing the KiWo event schedule (times, locations, activity types). This file is not included in the repository — supply your own, structured as an array/object of events, matching the shape your `get_activities` consumers expect.
+The agent expects a `programm.json` file describing the KiWo event schedule (times, locations, activity types).
 
-## Known limitations
+## Usage sidenote
 
-This is a small educational prototype, not a production system. Some notable caveats:
+For testing and debugging purposes, the agents will make up a random time and date from the KiWO 2026, except the real time and date is during the KiWO 2026.
+Otherwise the agnt would not function at all other times. For a production agent, I would propably change it to the hint that the KiWO is over.
 
-- **No schema validation** on the state or tool arguments returned by the model — malformed output from the LLM can produce runtime errors or corrupted state.
-- **No network error handling** around the weather API calls; a failed request will crash the loop.
-- **Unbounded conversation log** — the full message history grows for the entire session with no trimming or summarization.
-- **JSON-only output is enforced only via prompting** (plus `response_format={"type": "json_object"}` on supported backends), not a strict schema — smaller/local models may occasionally produce invalid JSON.
 
 ## Project structure
 
 ```
 .
 ├── agent.py         # Main agent loop, tool definitions, and system prompt
-├── programm.json    # KiWo event programme data (not included)
+├── programm.json    # KiWo event programme data
 └── README.md
 ```
 
-## License
-
-Add a license of your choice (e.g. MIT) if you plan to share this publicly.
