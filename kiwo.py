@@ -34,13 +34,6 @@ elif PROVIDER.lower() == "hf":
 
 
 
-
-
-
-
-
-
-
 # init the state
 # the state is created by the agent, but stored outside of the LLM
 # THe state is injeced into the system prompt for higher pryority
@@ -338,71 +331,3 @@ while True:
     json_obs = make_obervation(observation)
     log.append(user_msg(json_obs))
     
-quit()
-# ---------------------------
-# REACT LOOP
-# ---------------------------
-while True:
-    user_input = input("\nUser: ")
-    if user_input.lower() in ["exit", "quit"]:
-        break
-
-    log.append(user_msg(user_input))
-
-    while True:
-        log, ans = mychat(log, state)
-
-        print("\nMODEL:", ans)
-
-        try:
-            data = json.loads(ans)
-        except json.JSONDecodeError:
-            print("Invalid JSON from model")
-            break
-
-        # ---------------------------
-        # ACTION
-        # ---------------------------
-        if data["type"] == "action":
-            tool = data["action"]
-            args = data.get("args", {})
-
-            if tool not in function_dict:
-                observation = f"Unknown tool: {tool}"
-            else:
-                observation = function_dict[tool](**args)
-
-            print("TOOL RESULT:", observation)
-
-            # ---------------------------
-            # UPDATE STATE (NEW PART)
-            # ---------------------------
-            if tool == "get_date":
-                state["date"] = observation
-
-            elif tool == "get_weather_kiel":
-                state["weather"] = observation
-
-            elif tool == "get_activities":
-                state["time"] = "derived_from_query"  # optional placeholder
-
-            # feed observation back into model
-            log.append({
-                "role": "user",
-                "content": json.dumps({
-                    "type": "observation",
-                    "data": observation,
-                    "state": state
-                })
-            })
-
-        # ---------------------------
-        # FINAL ANSWER
-        # ---------------------------
-        elif data["type"] == "answer":
-            print("\nFINAL:", data["answer"])
-            break
-
-        else:
-            print("Unknown type")
-            break
